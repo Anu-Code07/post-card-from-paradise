@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { BRAND_FULL, BRAND_NAME } from "@/lib/brand";
+import { getSiteUrl } from "@/lib/site-url";
 import { postcardFontVariables } from "./postcard-fonts";
 import "./globals.css";
 
@@ -13,9 +14,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-  ),
+  metadataBase: new URL(getSiteUrl()),
   title: `${BRAND_NAME} | Create & Share Digital Postcards`,
   description:
     `${BRAND_FULL} — upload travel photos, add a personal message, customize the design, and share with a unique link.`,

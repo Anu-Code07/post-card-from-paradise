@@ -160,13 +160,13 @@ export function HeroSection({ ctaHref, heroImages }: HeroSectionProps) {
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-14 lg:items-center">
           {/* Postcard stack — first on mobile for visual punch, second on desktop */}
           <motion.div
-            className="order-1 lg:order-2 flex flex-col items-center gap-4 sm:gap-6 w-full max-w-md mx-auto lg:max-w-none mt-1 sm:mt-0"
+            className="order-1 lg:order-2 flex flex-col items-center gap-6 sm:gap-6 w-full max-w-md mx-auto lg:max-w-none mt-1 sm:mt-0"
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
           >
             <div
-              className="relative h-[min(54vw,300px)] sm:h-[340px] lg:h-[min(440px,48vh)] w-full px-2 pt-8 pb-3 sm:pt-2 sm:px-0 lg:pt-0"
+              className="relative h-[min(78vw,320px)] sm:h-[340px] lg:h-[min(440px,48vh)] w-full px-2 pt-8 pb-6 sm:pt-2 sm:pb-3 sm:px-0 lg:pt-0"
               style={{ perspective: 1200 }}
               onPointerMove={(e) => handleMove(e.clientX, e.clientY, e.currentTarget)}
               onPointerLeave={() => {
@@ -225,8 +225,8 @@ export function HeroSection({ ctaHref, heroImages }: HeroSectionProps) {
             </div>
 
             <motion.div
-              className="w-[min(100%,17rem)] sm:w-[min(100%,19rem)] shrink-0"
-              animate={{ y: [0, -3, 0] }}
+              className="w-[min(100%,17rem)] sm:w-[min(100%,19rem)] shrink-0 mt-2 sm:mt-0 relative z-10"
+              animate={{ y: [0, 2, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
               <div className="paper-link-pill flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 text-[11px] sm:text-xs justify-center">
