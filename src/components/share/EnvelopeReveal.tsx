@@ -206,7 +206,7 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
         ) : (
           <motion.div
             key="opening"
-            className="relative w-full max-w-md mx-auto aspect-[5/4]"
+            className="relative w-full max-w-md mx-auto aspect-[5/4] overflow-hidden"
             style={{ perspective: 1400 }}
           >
             <motion.div
@@ -224,17 +224,21 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
                 background: FLAP_BG,
                 transformOrigin: "top center",
                 transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
               }}
-              initial={{ rotateX: 0 }}
-              animate={{ rotateX: -175 }}
-              transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+              initial={{ rotateX: 0, opacity: 1 }}
+              animate={{ rotateX: -165, opacity: 0 }}
+              transition={{
+                rotateX: { duration: 0.55, ease: [0.4, 0, 0.2, 1] },
+                opacity: { delay: 0.22, duration: 0.28, ease: "easeIn" },
+              }}
             />
 
             <motion.div
-              className="absolute inset-x-[4%] top-[10%] bottom-[6%] z-10"
+              className="absolute inset-x-[4%] top-[10%] bottom-[6%] z-30"
               initial={{ y: 48, scale: 0.84, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: 0.38, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
               onAnimationComplete={finishReveal}
             >
               <div className="pointer-events-none">{children}</div>
