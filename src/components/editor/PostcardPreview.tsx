@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { motion, type PanInfo } from "framer-motion";
+import { Hand, RotateCcw } from "lucide-react";
 import type { PostcardFont, PostcardLayout, PostcardStyle, PostcardTweaks, PostcardVignette } from "@/lib/types";
 import { CORNER_CLASS, DEFAULT_TWEAKS, SHADOW_CLASS, TEXT_FX_CLASS } from "@/lib/customization";
 import { getFontClass } from "@/lib/fonts";
@@ -94,8 +95,24 @@ export function PostcardPreview({
   const locationY = locationYProp ?? defaults.locationY;
 
   const [internalFlipped, setInternalFlipped] = useState(false);
+  const [hintDismissed, setHintDismissed] = useState(false);
   const flipped = flippedProp ?? internalFlipped;
   const toggleFlip = onFlip ?? (() => setInternalFlipped((f) => !f));
+  const gestureFlip = flippable && !editable;
+
+  const handleFlip = useCallback(() => {
+    toggleFlip();
+    setHintDismissed(true);
+  }, [toggleFlip]);
+
+  const handlePanEnd = useCallback(
+    (_: unknown, info: PanInfo) => {
+      if (Math.abs(info.offset.x) > 48 || Math.abs(info.velocity.x) > 350) {
+        handleFlip();
+      }
+    },
+    [handleFlip]
+  );
 
   const extractedPalette = useImagePalette(imageUrl);
   const palette = activePalette(extractedPalette, colorMode);
@@ -242,7 +259,7 @@ export function PostcardPreview({
         />
       )}
 
-      {(flippable || editable) && (
+      {(flippable || editable) && !gestureFlip && (
         <div className="flex justify-center gap-1.5 mb-2 sm:mb-4">
           <button
             type="button"
@@ -268,30 +285,91 @@ export function PostcardPreview({
         </div>
       )}
 
-      <FlipCard
-        flipped={flipped}
-        mode={editable ? "swap" : "flip"}
-        aspectClass={LAYOUT_ASPECT[layout]}
-        maxWidthClass={LAYOUT_MAX_WIDTH[layout]}
-        shellClass={layoutShellClass(layout)}
-        cornerClass={CORNER_CLASS[tweaks.corners]}
-        shadowClass={SHADOW_CLASS[tweaks.shadow]}
-        front={<PostcardFront layout={layout} props={layoutProps} />}
-        back={
-          <PostcardBack
-            layout={layout}
-            message={message}
-            location={location}
-            backImageUrl={backImageUrl}
-            palette={palette}
-            colorMode={colorMode}
-            editable={editable}
-            onMessageChange={onMessageChange}
-            onBackImageChange={onBackImageChange}
-            onLocationChange={onLocationChange}
-          />
-        }
-      />
+      {gestureFlip ? (
+        <div className="relative">
+          <motion.button
+            type="button"
+            onClick={handleFlip}
+            onPanEnd={handlePanEnd}
+            whileTap={{ scale: 0.985 }}
+            className="relative w-full text-left rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+            aria-label={flipped ? "Show postcard front" : "Show postcard message on back"}
+          >
+            <FlipCard
+              flipped={flipped}
+              mode="flip"
+              aspectClass={LAYOUT_ASPECT[layout]}
+              maxWidthClass={LAYOUT_MAX_WIDTH[layout]}
+              shellClass={layoutShellClass(layout)}
+              cornerClass={CORNER_CLASS[tweaks.corners]}
+              shadowClass={SHADOW_CLASS[tweaks.shadow]}
+              front={<PostcardFront layout={layout} props={layoutProps} />}
+              back={
+                <PostcardBack
+                  layout={layout}
+                  message={message}
+                  location={location}
+                  backImageUrl={backImageUrl}
+                  palette={palette}
+                  colorMode={colorMode}
+                  editable={editable}
+                  onMessageChange={onMessageChange}
+                  onBackImageChange={onBackImageChange}
+                  onLocationChange={onLocationChange}
+                />
+              }
+            />
+
+            {!hintDismissed && (
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-primary/90 text-on-primary px-3 py-1.5 text-[11px] font-medium shadow-lg pointer-events-none"
+              >
+                <motion.span
+                  animate={{ rotate: [0, -18, 0] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <RotateCcw size={12} />
+                </motion.span>
+                Flip me
+              </motion.span>
+            )}
+          </motion.button>
+
+          <p className="mt-4 text-center text-sm text-on-surface-variant px-2">
+            <Hand size={14} className="inline -mt-0.5 mr-1 opacity-70" aria-hidden />
+            {flipped
+              ? "Tap or swipe to see the photo side again"
+              : "Tap or swipe the card to read the message on back"}
+          </p>
+        </div>
+      ) : (
+        <FlipCard
+          flipped={flipped}
+          mode={editable ? "swap" : "flip"}
+          aspectClass={LAYOUT_ASPECT[layout]}
+          maxWidthClass={LAYOUT_MAX_WIDTH[layout]}
+          shellClass={layoutShellClass(layout)}
+          cornerClass={CORNER_CLASS[tweaks.corners]}
+          shadowClass={SHADOW_CLASS[tweaks.shadow]}
+          front={<PostcardFront layout={layout} props={layoutProps} />}
+          back={
+            <PostcardBack
+              layout={layout}
+              message={message}
+              location={location}
+              backImageUrl={backImageUrl}
+              palette={palette}
+              colorMode={colorMode}
+              editable={editable}
+              onMessageChange={onMessageChange}
+              onBackImageChange={onBackImageChange}
+              onLocationChange={onLocationChange}
+            />
+          }
+        />
+      )}
 
       {editable && !flipped && layout !== "polaroid" && (
         <p className="text-center text-[10px] sm:text-[11px] text-on-surface-variant mt-3 sm:mt-4 font-sans px-2">
