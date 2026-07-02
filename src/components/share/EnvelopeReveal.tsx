@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useState,
+  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +16,37 @@ interface EnvelopeRevealProps {
   slug: string;
   children: ReactNode;
   className?: string;
+}
+
+const CONFETTI_COLORS = ["#d7c3b0", "#f5f0e6", "#171818", "#c4a882", "#e8d5c4"];
+
+function blastConfettiFromTop() {
+  const base = {
+    origin: { x: 0.5, y: 0 },
+    colors: CONFETTI_COLORS,
+    gravity: 1.1,
+    ticks: 160,
+    zIndex: 9999,
+    disableForReducedMotion: true,
+  };
+
+  confetti({
+    ...base,
+    particleCount: 70,
+    spread: 100,
+    startVelocity: 38,
+    scalar: 0.92,
+  });
+
+  window.setTimeout(() => {
+    confetti({
+      ...base,
+      particleCount: 45,
+      spread: 120,
+      startVelocity: 32,
+      scalar: 0.8,
+    });
+  }, 140);
 }
 
 export function EnvelopeReveal({ slug, children, className }: EnvelopeRevealProps) {
@@ -31,23 +63,23 @@ export function EnvelopeReveal({ slug, children, className }: EnvelopeRevealProp
   const openEnvelope = useCallback(() => {
     if (opening || revealed) return;
     setOpening(true);
-
-    confetti({
-      particleCount: 48,
-      spread: 72,
-      startVelocity: 28,
-      origin: { y: 0.62, x: 0.5 },
-      colors: ["#d7c3b0", "#f5f0e6", "#171818", "#c4a882"],
-      ticks: 120,
-      gravity: 0.9,
-      scalar: 0.85,
-    });
+    blastConfettiFromTop();
 
     window.setTimeout(() => {
       setRevealed(true);
       sessionStorage.setItem(storageKey, "1");
     }, 1300);
   }, [opening, revealed, storageKey]);
+
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openEnvelope();
+      }
+    },
+    [openEnvelope]
+  );
 
   if (revealed) {
     return (
@@ -66,76 +98,50 @@ export function EnvelopeReveal({ slug, children, className }: EnvelopeRevealProp
     <div className={cn("relative w-full flex flex-col items-center", className)}>
       <AnimatePresence mode="wait">
         {!opening ? (
-          <motion.button
+          <motion.div
             key="sealed"
-            type="button"
+            role="button"
+            tabIndex={0}
             onClick={openEnvelope}
+            onKeyDown={onKeyDown}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.4 }}
-            className="group w-full max-w-md mx-auto text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-2xl"
+            className="group w-full max-w-md mx-auto cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 rounded-2xl"
             aria-label="Open postcard envelope"
           >
-            <div
-              className="relative mx-auto aspect-[4/3] w-full max-w-[22rem] sm:max-w-[26rem]"
-              style={{ perspective: 1200 }}
-            >
+            <div className="relative mx-auto aspect-[5/4] w-full max-w-[22rem] sm:max-w-[26rem]">
               <motion.div
                 className="absolute inset-0"
                 animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <div className="relative w-full h-full" style={{ transformStyle: "preserve-3d" }}>
+                <div
+                  className="absolute inset-x-[10%] bottom-[14%] top-[22%] rounded-sm shadow-[0_20px_50px_rgba(23,24,24,0.18)] border border-[#b8a088]/45 overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(165deg, #e8d5c4 0%, #d7c3b0 48%, #c4aa92 100%)",
+                  }}
+                >
                   <div
-                    className="absolute inset-x-[8%] bottom-[12%] top-[28%] rounded-sm shadow-[0_20px_50px_rgba(23,24,24,0.18)] border border-[#b8a088]/40"
+                    className="absolute inset-x-0 bottom-0 h-[38%]"
                     style={{
                       background:
-                        "linear-gradient(165deg, #e8d5c4 0%, #d7c3b0 45%, #c9b29a 100%)",
+                        "linear-gradient(0deg, rgba(160,130,105,0.35) 0%, transparent 100%)",
+                      clipPath: "polygon(0 100%, 50% 18%, 100% 100%)",
                     }}
                   />
+                </div>
 
-                  <div
-                    className="absolute inset-x-[10%] bottom-[14%] top-[30%] overflow-hidden rounded-sm opacity-90"
-                    style={{ transform: "translateZ(1px)" }}
-                  >
-                    <div className="w-full h-full scale-[0.72] origin-top opacity-80 pointer-events-none blur-[0.3px]">
-                      {children}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute inset-x-[8%] bottom-[12%] h-[42%] rounded-b-sm"
-                    style={{
-                      background:
-                        "linear-gradient(0deg, #c4aa92 0%, #d7c3b0 70%, transparent 100%)",
-                      clipPath: "polygon(0 100%, 50% 0, 100% 100%)",
-                      transform: "translateZ(8px)",
-                    }}
-                  />
-
-                  <motion.div
-                    className="absolute inset-x-[8%] top-[12%] h-[46%] origin-top"
-                    style={{
-                      transformStyle: "preserve-3d",
-                      clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-                      background:
-                        "linear-gradient(180deg, #efe0d2 0%, #dcc7b5 55%, #cdb59f 100%)",
-                      boxShadow: "inset 0 -2px 8px rgba(0,0,0,0.06)",
-                    }}
-                    animate={{ rotateX: [0, -4, 0] }}
-                    transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-                  />
-
-                  <div
-                    className="absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full border-2 border-[#9a7b62]/50 flex items-center justify-center shadow-md"
-                    style={{
-                      background:
-                        "radial-gradient(circle at 35% 30%, #c45c4a, #8f3d32 70%, #6d2e26)",
-                    }}
-                  >
-                    <Mail size={16} className="text-white/90" strokeWidth={2.2} />
-                  </div>
+                <div
+                  className="absolute left-1/2 top-[48%] -translate-x-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full border-2 border-[#9a7b62]/50 flex items-center justify-center shadow-md"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 35% 30%, #c45c4a, #8f3d32 70%, #6d2e26)",
+                  }}
+                >
+                  <Mail size={18} className="text-white/90" strokeWidth={2.2} />
                 </div>
               </motion.div>
             </div>
@@ -146,11 +152,11 @@ export function EnvelopeReveal({ slug, children, className }: EnvelopeRevealProp
             <p className="mt-1 text-center text-sm text-on-surface-variant group-hover:text-primary transition-colors">
               Tap the envelope to open your postcard
             </p>
-          </motion.button>
+          </motion.div>
         ) : (
           <motion.div
             key="opening"
-            className="relative w-full max-w-md mx-auto aspect-[4/3] max-w-[26rem]"
+            className="relative w-full max-w-md mx-auto aspect-[4/3]"
             style={{ perspective: 1400 }}
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
