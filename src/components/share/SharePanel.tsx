@@ -11,10 +11,11 @@ import { tweaksFromPostcard } from "@/lib/customization";
 
 interface SharePanelProps {
   postcard: Postcard;
+  senderName: string;
   justPublished?: boolean;
 }
 
-export function SharePanel({ postcard, justPublished }: SharePanelProps) {
+export function SharePanel({ postcard, senderName, justPublished }: SharePanelProps) {
   const [copied, setCopied] = useState(false);
   const shareUrl = typeof window !== "undefined" ? getShareUrl(postcard.slug) : `/p/${postcard.slug}`;
   const styleLabel = STYLES.find((s) => s.id === postcard.style);
@@ -70,6 +71,7 @@ export function SharePanel({ postcard, justPublished }: SharePanelProps) {
         ) : (
           <EnvelopeReveal
             slug={postcard.slug}
+            senderName={senderName}
             className="w-full max-w-[min(100%,52rem)] mx-auto"
           >
             {preview}

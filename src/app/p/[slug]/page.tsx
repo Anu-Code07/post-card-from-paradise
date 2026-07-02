@@ -41,7 +41,7 @@ export default async function SharePage({ params, searchParams }: PageProps) {
 
   const { data } = await supabase
     .from("postcards")
-    .select("*")
+    .select("*, profiles(full_name, email)")
     .eq("slug", slug)
     .eq("status", "published")
     .single();
@@ -50,7 +50,13 @@ export default async function SharePage({ params, searchParams }: PageProps) {
 
   await supabase.rpc("increment_postcard_views", { postcard_slug: slug });
 
-  const postcard = data as Postcard;
+  const postcard = data as Postcard & {
+    profiles?: { full_name: string | null; email: string | null } | null;
+  };
+  const senderName =
+    postcard.profiles?.full_name?.trim() ||
+    postcard.profiles?.email?.split("@")[0] ||
+    "a friend";
 
   return (
     <div className="container-app pt-6 pb-12 sm:pt-8 md:pt-12">
@@ -65,7 +71,7 @@ export default async function SharePage({ params, searchParams }: PageProps) {
         </p>
       </header>
 
-      <SharePanel postcard={postcard} justPublished={published === "1"} />
+      <SharePanel postcard={postcard} senderName={senderName} justPublished={published === "1"} />
 
       <div className="mt-12 text-center">
         <Link
