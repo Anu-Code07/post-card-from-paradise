@@ -95,14 +95,12 @@ export function PostcardPreview({
   const locationY = locationYProp ?? defaults.locationY;
 
   const [internalFlipped, setInternalFlipped] = useState(false);
-  const [hintDismissed, setHintDismissed] = useState(false);
   const flipped = flippedProp ?? internalFlipped;
   const toggleFlip = onFlip ?? (() => setInternalFlipped((f) => !f));
   const gestureFlip = flippable && !editable;
 
   const handleFlip = useCallback(() => {
     toggleFlip();
-    setHintDismissed(true);
   }, [toggleFlip]);
 
   const handlePanEnd = useCallback(
@@ -320,21 +318,6 @@ export function PostcardPreview({
               }
             />
 
-            {!hintDismissed && (
-              <motion.span
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-primary/90 text-on-primary px-3 py-1.5 text-[11px] font-medium shadow-lg pointer-events-none"
-              >
-                <motion.span
-                  animate={{ rotate: [0, -18, 0] }}
-                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <RotateCcw size={12} />
-                </motion.span>
-                Flip me
-              </motion.span>
-            )}
           </motion.button>
 
           <p className="mt-4 text-center text-sm text-on-surface-variant px-2">

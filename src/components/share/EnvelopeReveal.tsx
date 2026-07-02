@@ -156,43 +156,29 @@ export function EnvelopeReveal({ slug, children, className }: EnvelopeRevealProp
         ) : (
           <motion.div
             key="opening"
-            className="relative w-full max-w-md mx-auto aspect-[4/3]"
-            style={{ perspective: 1400 }}
+            className="relative w-full max-w-md mx-auto aspect-[5/4]"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
           >
-            <div className="relative w-full h-full" style={{ transformStyle: "preserve-3d" }}>
-              <motion.div
-                className="absolute inset-x-[8%] bottom-[12%] top-[28%] rounded-sm border border-[#b8a088]/40"
-                style={{
-                  background:
-                    "linear-gradient(165deg, #e8d5c4 0%, #d7c3b0 45%, #c9b29a 100%)",
-                }}
-                animate={{ scale: [1, 1.02, 0.98], opacity: [1, 1, 0] }}
-                transition={{ duration: 1.2, times: [0, 0.35, 1] }}
-              />
+            <motion.div
+              className="absolute inset-x-[10%] bottom-[14%] top-[22%] rounded-sm border border-[#b8a088]/40"
+              style={{
+                background:
+                  "linear-gradient(165deg, #e8d5c4 0%, #d7c3b0 45%, #c9b29a 100%)",
+              }}
+              initial={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.55, ease: "easeIn" }}
+            />
 
-              <motion.div
-                className="absolute inset-x-[8%] top-[12%] h-[46%] origin-top z-10"
-                style={{
-                  clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-                  background:
-                    "linear-gradient(180deg, #efe0d2 0%, #dcc7b5 55%, #cdb59f 100%)",
-                }}
-                initial={{ rotateX: 0 }}
-                animate={{ rotateX: -168 }}
-                transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
-              />
-
-              <motion.div
-                className="absolute inset-x-[6%] bottom-[8%] top-[18%] z-20"
-                initial={{ y: 40, scale: 0.78, opacity: 0.5 }}
-                animate={{ y: -20, scale: 1, opacity: 1 }}
-                transition={{ delay: 0.35, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <div className="pointer-events-none">{children}</div>
-              </motion.div>
-            </div>
+            <motion.div
+              className="absolute inset-x-[4%] top-[8%] bottom-[8%] z-10"
+              initial={{ y: 56, scale: 0.82, opacity: 0.4 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              transition={{ delay: 0.15, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="pointer-events-none">{children}</div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
