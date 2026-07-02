@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import { getShareUrl } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import type { Postcard } from "@/lib/types";
 import { PostcardPreview } from "@/components/editor/PostcardPreview";
+import { EnvelopeReveal } from "@/components/share/EnvelopeReveal";
 import { STYLES } from "@/lib/styles";
 import { tweaksFromPostcard } from "@/lib/customization";
 
@@ -18,6 +18,29 @@ export function SharePanel({ postcard, justPublished }: SharePanelProps) {
   const [copied, setCopied] = useState(false);
   const shareUrl = typeof window !== "undefined" ? getShareUrl(postcard.slug) : `/p/${postcard.slug}`;
   const styleLabel = STYLES.find((s) => s.id === postcard.style);
+
+  const preview = (
+    <PostcardPreview
+      imageUrl={postcard.image_url}
+      title={postcard.title}
+      location={postcard.location}
+      message={postcard.message}
+      style={postcard.style}
+      layout={postcard.layout ?? "editorial"}
+      font={postcard.font ?? "caslon"}
+      size="large"
+      flippable
+      titleX={postcard.title_x}
+      titleY={postcard.title_y}
+      locationX={postcard.location_x}
+      locationY={postcard.location_y}
+      backImageUrl={postcard.back_image_url}
+      colorMode={postcard.color_mode ?? "paper"}
+      vignette={postcard.vignette ?? "none"}
+      grain={postcard.grain ?? false}
+      tweaks={tweaksFromPostcard(postcard)}
+    />
+  );
 
   async function copyLink() {
     await navigator.clipboard.writeText(shareUrl);
@@ -40,33 +63,18 @@ export function SharePanel({ postcard, justPublished }: SharePanelProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
       <div className="lg:col-span-7 flex flex-col items-center justify-center p-4 sm:p-8 bg-surface-container-low rounded-xl border border-primary/5">
-        <div
-          className={cn(
-            "w-full max-w-[min(100%,52rem)] mx-auto",
-            justPublished && "animate-float"
-          )}
-        >
-          <PostcardPreview
-            imageUrl={postcard.image_url}
-            title={postcard.title}
-            location={postcard.location}
-            message={postcard.message}
-            style={postcard.style}
-            layout={postcard.layout ?? "editorial"}
-            font={postcard.font ?? "caslon"}
-            size="large"
-            flippable
-            titleX={postcard.title_x}
-            titleY={postcard.title_y}
-            locationX={postcard.location_x}
-            locationY={postcard.location_y}
-            backImageUrl={postcard.back_image_url}
-            colorMode={postcard.color_mode ?? "paper"}
-            vignette={postcard.vignette ?? "none"}
-            grain={postcard.grain ?? false}
-            tweaks={tweaksFromPostcard(postcard)}
-          />
-        </div>
+        {justPublished ? (
+          <div className="w-full max-w-[min(100%,52rem)] mx-auto animate-float">
+            {preview}
+          </div>
+        ) : (
+          <EnvelopeReveal
+            slug={postcard.slug}
+            className="w-full max-w-[min(100%,52rem)] mx-auto"
+          >
+            {preview}
+          </EnvelopeReveal>
+        )}
         <div className="mt-6 flex gap-3 text-label-sm text-on-surface-variant">
           <span className="text-secondary uppercase tracking-widest">
             {styleLabel?.label} ({styleLabel?.era})
