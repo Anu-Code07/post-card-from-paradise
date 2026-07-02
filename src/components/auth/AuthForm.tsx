@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getAuthCallbackUrl, getOAuthRedirectOrigin } from "@/lib/site-url";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface AuthFormProps {
@@ -59,25 +58,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     router.refresh();
   }
 
-  async function handleGoogle() {
-    setLoading(true);
-    const clientOrigin =
-      typeof window !== "undefined" ? window.location.origin : undefined;
-    const callbackUrl = getAuthCallbackUrl(
-      getOAuthRedirectOrigin(clientOrigin),
-      redirect
-    );
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: callbackUrl,
-      },
-    });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
-  }
+  const googleHref = `/auth/google?redirect=${encodeURIComponent(redirect)}`;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -179,13 +160,12 @@ export function AuthForm({ mode }: AuthFormProps) {
         </div>
       </div>
 
-      <button
-        onClick={handleGoogle}
-        disabled={loading}
+      <Link
+        href={googleHref}
         className="w-full border border-primary/10 py-4 rounded font-medium hover:bg-surface-container active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
       >
         Continue with Google
-      </button>
+      </Link>
 
       <p className="text-center mt-8 text-on-surface-variant">
         {mode === "login" ? (

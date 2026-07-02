@@ -15,7 +15,13 @@ export function getSiteUrl() {
 /** Origin for OAuth redirectTo — never send users to localhost from a deployed build */
 export function getOAuthRedirectOrigin(clientOrigin?: string) {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (fromEnv) return fromEnv;
+  if (
+    fromEnv &&
+    !fromEnv.includes("localhost") &&
+    !fromEnv.includes("127.0.0.1")
+  ) {
+    return fromEnv;
+  }
 
   const origin = clientOrigin?.replace(/\/$/, "") ?? "";
   if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
