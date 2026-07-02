@@ -34,8 +34,8 @@ export const LANDING_PHOTOS = {
     alt: "Nighttime waterfront — Q. Zhang / Unsplash",
   },
   styleVintage: {
-    url: "https://iili.io/CY5nD5N.jpg",
-    alt: "Mountain vista — Jean Carlo Emer / Unsplash",
+    url: "https://iili.io/CY5nbeI.jpg",
+    alt: "European building with climbing roses — Ireland Rogers / Unsplash",
   },
 } as const;
 

@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
@@ -114,6 +115,8 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
   const storageKey = `postcard-envelope-${slug}`;
   const [revealed, setRevealed] = useState(false);
   const [opening, setOpening] = useState(false);
+  const [skipRevealEntrance, setSkipRevealEntrance] = useState(false);
+  const revealTriggered = useRef(false);
 
   useEffect(() => {
     if (sessionStorage.getItem(storageKey) === "1") {
@@ -121,16 +124,19 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
     }
   }, [storageKey]);
 
+  const finishReveal = useCallback(() => {
+    if (revealTriggered.current) return;
+    revealTriggered.current = true;
+    setSkipRevealEntrance(true);
+    setRevealed(true);
+    sessionStorage.setItem(storageKey, "1");
+  }, [storageKey]);
+
   const openEnvelope = useCallback(() => {
     if (opening || revealed) return;
     setOpening(true);
     blastConfettiFromTop();
-
-    window.setTimeout(() => {
-      setRevealed(true);
-      sessionStorage.setItem(storageKey, "1");
-    }, 1400);
-  }, [opening, revealed, storageKey]);
+  }, [opening, revealed]);
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
@@ -145,7 +151,7 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
   if (revealed) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        initial={skipRevealEntrance ? false : { opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className={className}
@@ -156,7 +162,7 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
   }
 
   return (
-    <div className={cn("relative w-full flex flex-col items-center", className)}>
+    <div className={cn("relative w-full flex flex-col items-center group", className)}>
       <AnimatePresence mode="wait">
         {!opening ? (
           <motion.div
@@ -196,13 +202,6 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
                 <EnvelopeFromLabel name={senderName} />
               </motion.div>
             </div>
-
-            <p className="mt-6 text-center font-serif text-lg text-primary">
-              You&apos;ve got mail
-            </p>
-            <p className="mt-1 text-center text-sm text-on-surface-variant group-hover:text-primary transition-colors">
-              Tap the envelope to open your postcard
-            </p>
           </motion.div>
         ) : (
           <motion.div
@@ -236,9 +235,30 @@ export function EnvelopeReveal({ slug, senderName, children, className }: Envelo
               initial={{ y: 48, scale: 0.84, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              onAnimationComplete={finishReveal}
             >
               <div className="pointer-events-none">{children}</div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!opening && !revealed && (
+          <motion.div
+            key="envelope-cta"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.15 }}
+            className="w-full overflow-hidden"
+          >
+            <p className="mt-6 text-center font-serif text-lg text-primary">
+              You&apos;ve got mail
+            </p>
+            <p className="mt-1 text-center text-sm text-on-surface-variant group-hover:text-primary transition-colors">
+              Tap the envelope to open your postcard
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
