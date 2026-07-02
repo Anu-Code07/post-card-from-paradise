@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import { getShareUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { Postcard } from "@/lib/types";
 import { PostcardPreview } from "@/components/editor/PostcardPreview";
 import { STYLES } from "@/lib/styles";
@@ -39,7 +40,12 @@ export function SharePanel({ postcard, justPublished }: SharePanelProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
       <div className="lg:col-span-7 flex flex-col items-center justify-center p-4 sm:p-8 bg-surface-container-low rounded-xl border border-primary/5">
-        <div className={justPublished ? "animate-float" : ""}>
+        <div
+          className={cn(
+            "w-full max-w-[min(100%,52rem)] mx-auto",
+            justPublished && "animate-float"
+          )}
+        >
           <PostcardPreview
             imageUrl={postcard.image_url}
             title={postcard.title}
@@ -48,6 +54,7 @@ export function SharePanel({ postcard, justPublished }: SharePanelProps) {
             style={postcard.style}
             layout={postcard.layout ?? "editorial"}
             font={postcard.font ?? "caslon"}
+            size="large"
             flippable
             titleX={postcard.title_x}
             titleY={postcard.title_y}
