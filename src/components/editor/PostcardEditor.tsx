@@ -26,6 +26,7 @@ import { generateSlug } from "@/lib/utils";
 import { FONT_BY_STYLE } from "@/lib/fonts";
 import { DEFAULT_POSITIONS } from "@/lib/layouts";
 import { tweaksFromPostcard, tweaksToPayload } from "@/lib/customization";
+import { upsertPostcard } from "@/lib/postcard-save";
 import type { Postcard, PostcardColorMode, PostcardFont, PostcardLayout, PostcardStyle, PostcardTweaks, PostcardVignette } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -175,8 +176,7 @@ export function PostcardEditor({ existing }: PostcardEditorProps) {
         status,
       };
 
-      const { error: dbError } = await supabase.from("postcards").upsert(payload);
-      if (dbError) throw new Error(dbError.message);
+      await upsertPostcard(supabase, payload);
 
       setPostcardId(id);
       if (uploadedUrl) setImageUrl(uploadedUrl);
