@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getAuthCallbackUrl } from "@/lib/site-url";
+import { getAuthCallbackUrl, getOAuthRedirectOrigin } from "@/lib/site-url";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface AuthFormProps {
@@ -61,14 +61,16 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   async function handleGoogle() {
     setLoading(true);
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "";
+    const clientOrigin =
+      typeof window !== "undefined" ? window.location.origin : undefined;
+    const callbackUrl = getAuthCallbackUrl(
+      getOAuthRedirectOrigin(clientOrigin),
+      redirect
+    );
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getAuthCallbackUrl(origin, redirect),
+        redirectTo: callbackUrl,
       },
     });
     if (error) {
