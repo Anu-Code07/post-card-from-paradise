@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getAuthCallbackUrl } from "@/lib/site-url";
+import { getAuthCallbackUrl, getAuthRedirectOrigin } from "@/lib/site-url";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface AuthFormProps {
@@ -25,6 +25,8 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [message, setMessage] = useState<string | null>(null);
 
   const supabase = createClient();
+  const getCallbackUrl = () =>
+    getAuthCallbackUrl(getAuthRedirectOrigin(window.location.origin), redirect);
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();
@@ -36,7 +38,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } },
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: getCallbackUrl(),
+        },
       });
       if (error) {
         setError(error.message);
@@ -64,7 +69,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getAuthCallbackUrl(window.location.origin, redirect),
+        redirectTo: getCallbackUrl(),
       },
     });
     if (error) {

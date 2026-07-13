@@ -2,6 +2,19 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Supabase Auth redirects
+
+Set `NEXT_PUBLIC_SITE_URL` to Postcard's public origin, for example
+`https://post-card-from-paradise.vercel.app`. Supabase Auth must allow the exact
+callback URL this app sends:
+
+```text
+https://post-card-from-paradise.vercel.app/auth/callback
+```
+
+This keeps Postcard sign-in and email confirmation redirects independent from the
+Supabase project's default Site URL.
+
 First, run the development server:
 
 ```bash
